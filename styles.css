@@ -33,6 +33,9 @@
 
   --transition-normal: 0.3s ease;
   --transition-bounce: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  --anim-duration: 0.8s;
+  --anim-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 *,
@@ -188,18 +191,39 @@ main > section header {
 
 .reveal-chars .char-unit {
   display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+}
 
-  animation: revealCharsAnimation linear 1s both;
-  animation-timeline: view(y 50% 10%);
-  animation-delay: calc(var(--i) * 0.1s);
+.reveal-chars.animate .char-unit {
+  animation: revealCharsAnimation var(--anim-duration) var(--anim-ease) both;
+  animation-delay: calc(var(--i) * 0.02s);
 }
 
 @keyframes revealCharsAnimation {
-  from {
-    opacity: 0;
-    transform: translateY(50%);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
+.reveal-lines .line-container {
+  overflow: hidden;
+  display: block;
+}
+
+.reveal-lines .line-inner {
+  display: block;
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.reveal-lines.animate .line-inner {
+  animation: revealLinesAnimation var(--anim-duration) var(--anim-ease) both;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+@keyframes revealLinesAnimation {
   to {
     opacity: 1;
     transform: translateY(0);
@@ -207,31 +231,45 @@ main > section header {
 }
 
 .fade-in {
-  animation: fadeInAnimation linear both;
-  animation-timeline: view(y 75% 0%);
+  opacity: 0;
+}
+
+.fade-in.animate {
+  animation: fadeInAnimation var(--anim-duration) var(--anim-ease) both;
 }
 
 @keyframes fadeInAnimation {
-  from {
-    opacity: 0;
-  }
-
   to {
     opacity: 1;
   }
 }
 
+.slide-up {
+  opacity: 0;
+  transform: translateY(1.25rem);
+}
+
+.slide-up.animate {
+  animation: slideUpAnimation var(--anim-duration) var(--anim-ease) both;
+}
+
+@keyframes slideUpAnimation {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .slide-left {
-  animation: slideLeftAnimation linear both;
-  animation-timeline: view(y 90% 0%);
+  opacity: 0;
+  transform: translateX(1.25rem);
+}
+
+.slide-left.animate {
+  animation: slideLeftAnimation var(--anim-duration) var(--anim-ease) both;
 }
 
 @keyframes slideLeftAnimation {
-  from {
-    transform: translateX(10%);
-    opacity: 0;
-  }
-
   to {
     transform: translateX(0);
     opacity: 1;
@@ -239,21 +277,26 @@ main > section header {
 }
 
 .slide-right {
-  animation: slideRightAnimation linear both;
-  animation-timeline: view(y 99% 10%);
+  opacity: 0;
+  transform: translateX(-1.25rem);
+}
+
+.slide-right.animate {
+  animation: slideRightAnimation var(--anim-duration) var(--anim-ease) both;
 }
 
 @keyframes slideRightAnimation {
-  from {
-    transform: translateX(-10%);
-    opacity: 0;
-  }
-
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
+
+.delay-100 { animation-delay: 100ms !important; }
+.delay-200 { animation-delay: 200ms !important; }
+.delay-300 { animation-delay: 300ms !important; }
+.delay-400 { animation-delay: 400ms !important; }
+.delay-500 { animation-delay: 500ms !important; }
 
 .underline-lg,
 .underline {
@@ -719,7 +762,7 @@ main > section header {
 
 .testimonials-section .testimonials .testimonials-track .testimonial-card {
   flex: none;
-  width: 640px;
+  width: 40rem;
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);

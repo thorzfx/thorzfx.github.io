@@ -11,6 +11,95 @@ document.addEventListener("DOMContentLoaded", () => {
   const revealCharsElements = document.querySelectorAll('.reveal-chars')
   const revealLinesElements = document.querySelectorAll('.reveal-lines')
 
+  // Intersection Observer for scroll animations
+  const appearanceObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate')
+        appearanceObserver.unobserve(entry.target)
+      }
+    })
+  }, {
+    rootMargin: "0% 0px -10% 0px",
+    threshold: 0.1,
+  })
+
+  // Reveal chars logic
+  revealCharsElements.forEach((element) => {
+    const htmlContent = element.innerHTML
+    const lines = htmlContent.split(/<br\s*[\/]?>/gi)
+
+    let globalCharIndex = 0
+
+    const newHTML = lines.map((line) => {
+      const words = line.trim().split(/\s+/)
+
+      const wrappedWords = words.map((word) => {
+        if (word === "") {
+          return ""
+        }
+
+        const letters = word.split('').map((char) => {
+          const index = globalCharIndex++
+
+          return `<span class="char-unit" style="--i: ${index};">${char}</span>`
+        }).join('')
+
+        return `<span aria-hidden=true class="word-container">${letters}</span>`
+      })
+
+      return wrappedWords.join(' ')
+    }).join('<br />')
+
+    element.innerHTML = `<span class="sr-only">${element.textContent}</span>` + newHTML
+    appearanceObserver.observe(element)
+  })
+
+  // Reveal lines logic
+  function splitLines() {
+    revealLinesElements.forEach((element) => {
+      const text = element.textContent.trim()
+      const words = text.split(/\s+/)
+
+      element.innerHTML = words.map(word => `<span>${word}</span>`).join(' ')
+
+      const spans = element.querySelectorAll('span')
+      const lines = []
+      let currentLine = []
+      let lastTop = -1
+
+      spans.forEach((span) => {
+        const top = span.offsetTop
+        if (lastTop !== -1 && top > lastTop) {
+          lines.push(currentLine)
+          currentLine = []
+        }
+        currentLine.push(span.textContent)
+        lastTop = top
+      })
+      lines.push(currentLine)
+
+      element.innerHTML = lines.map((line, i) => `
+        <span class="line-container">
+          <span class="line-inner" style="--i: ${i}">${line.join(' ')}</span>
+        </span>
+      `).join('')
+
+      appearanceObserver.observe(element)
+    })
+  }
+
+  if (document.fonts) {
+    document.fonts.ready.then(splitLines)
+  } else {
+    setTimeout(splitLines, 100)
+  }
+
+  // Observe other animatable elements
+  document.querySelectorAll('.fade-in, .slide-up, .slide-left, .slide-right').forEach((el) => {
+    appearanceObserver.observe(el)
+  })
+
   // Navbar logic
   const ctaVisibilityMap = new Map()
 
@@ -179,34 +268,4 @@ document.addEventListener("DOMContentLoaded", () => {
     video.load()
     video.controls = false
   }
-
-  // Reveal chars logic
-  revealCharsElements.forEach((element) => {
-    const htmlContent = element.innerHTML
-    const lines = htmlContent.split(/<br\s*[\/]?>/gi)
-
-    let globalCharIndex = 0
-
-    const newHTML = lines.map((line) => {
-      const words = line.trim().split(/\s+/)
-
-      const wrappedWords = words.map((word) => {
-        if (word === "") {
-          return ""
-        }
-
-        const letters = word.split('').map((char) => {
-          const index = globalCharIndex++
-
-          return `<span class="char-unit" style="--i: ${index};">${char}</span>`
-        }).join('')
-
-        return `<span aria-hidden=true class="word-container">${letters}</span>`
-      })
-
-      return wrappedWords.join(' ')
-    }).join('<br />')
-
-    element.innerHTML = `<span class="sr-only">${htmlContent}</span>` + newHTML
-  })
 })
