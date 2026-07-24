@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const video = card.querySelector('video')
 
     let playTimeout = null
-    const hoverDelay = 2000
+    const hoverDelay = 1000
 
     card.addEventListener('click', () => {
       const isAlreadyPlaying = video.classList.contains('playing')
